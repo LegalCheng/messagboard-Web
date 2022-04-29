@@ -129,12 +129,8 @@ body {
 <body>
   <header class="title">
     <?php
-      define('DB_SERVER', 'db');
-      define('DB_USERNAME', 'user1000');
-      define('DB_PASSWORD', 'kiki90317');
-      define('DB_NAME', 'myDb');
-      $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-      $data = mysqli_query($conn, "SELECT * FROM `title` WHERE `id`='1'");
+     require_once('config.php');
+      $data = mysqli_query($link, "SELECT * FROM `title` WHERE `id`='1'");
       $nums=mysqli_fetch_row($data);
       echo utf8_decode($nums[1]);
     ?>
@@ -190,23 +186,19 @@ body {
               $nickname=htmlspecialchars($_SESSION['fname']);
               echo $nickname;?></b></label>
             <?php
-            define('DB_SERVER', 'db');
-            define('DB_USERNAME', 'user1000');
-            define('DB_PASSWORD', 'kiki90317');
-            define('DB_NAME', 'myDb');
-            $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-            function getHeadShot($conn) {
-              $username = $_SESSION['E-mail'];
-              $result = '';
-              $getImageInfo = $conn->query("SELECT picture FROM members WHERE `E-mail` = '$username'");
-              if ($getImageInfo->num_rows === 1) {
-                $img = $getImageInfo->fetch_assoc()['picture'];
-                $type = $getImageInfo->fetch_assoc()['type'];
-                $result = '"data:' . $type . ';base64,' . $img;
+            require_once('config.php');
+              function getHeadShot($link) {
+                $username = $_SESSION['E-mail'];
+                $result = '';
+                $getImageInfo = $link->query("SELECT picture FROM members WHERE `E-mail` = '$username'");
+                if ($getImageInfo->num_rows === 1) {
+                  $img = $getImageInfo->fetch_assoc()['picture'];
+                  $type = $getImageInfo->fetch_assoc()['type'];
+                  $result = '"data:' . $type . ';base64,' . $img;
+                }
+                return $result;
               }
-              return $result;
-            }
-            $haveHeadShot = getHeadShot($conn);
+            $haveHeadShot = getHeadShot($link);
               if ($haveHeadShot) { 
                 echo '<img src=' . $haveHeadShot . '" width="300" height="300" class="picture1"/>'; 
               }?>			
@@ -226,12 +218,8 @@ body {
     <td>download</td>
   </tr>
  <?php
-  define('DB_SERVER', 'db');
-  define('DB_USERNAME', 'user1000');
-  define('DB_PASSWORD', 'kiki90317');
-  define('DB_NAME', 'myDb');
-  $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-  $data = mysqli_query($conn, "SELECT * FROM comment");
+  require_once('config.php');
+  $data = mysqli_query($link, "SELECT * FROM comment");
   for($i=1;$i<=mysqli_num_rows($data);$i++){
       $rs=mysqli_fetch_row($data);
  ?>
@@ -283,11 +271,7 @@ body {
 </body>
 <?php
   session_start();
-  define('DB_SERVER', 'db');
-  define('DB_USERNAME', 'user1000');
-  define('DB_PASSWORD', 'kiki90317');
-  define('DB_NAME', 'myDb');
-  $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+  require_once('config.php');
   if(isset($_POST['btn'])){
       $name=$_FILES['file1']['name'];
       $type = $_FILES['file1']['type'];
@@ -304,7 +288,7 @@ body {
           $a=bbcode($_POST[comment]);
           date_default_timezone_set("Asia/Taipei");
           $getpasstime = date('Y/m/d H:i:s');
-          $check = mysqli_query($conn, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
+          $check = mysqli_query($link, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
           $nums=mysqli_fetch_row($check);
           $num_rows = $nums[0]+1;
           $str=$_SESSION['fname'];
@@ -314,7 +298,7 @@ body {
             echo "<script>location.href='comment.php'</script>";
           }
           else{
-            $stmt=$conn ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
+            $stmt=$link ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
             $stmt ->bind_param('sssssssss',$num_rows,$str,$a,$getpasstime,$email,$data,$type,$size,$name);
             $stmt ->execute();
             echo "<script>location.href='comment.php'</script>";
@@ -329,7 +313,7 @@ body {
         $a=bbcode($_POST[comment]);
           date_default_timezone_set("Asia/Taipei");
           $getpasstime = date('Y/m/d H:i:s');
-          $check = mysqli_query($conn, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
+          $check = mysqli_query($link, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
           $nums=mysqli_fetch_row($check);
           $num_rows = $nums[0]+1;
           $str=$_SESSION['fname'];
@@ -339,7 +323,7 @@ body {
             echo "<script>location.href='comment.php'</script>";
           }
           else{
-            $stmt=$conn ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
+            $stmt=$link ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
             $stmt ->bind_param('sssssssss',$num_rows,$str,$a,$getpasstime,$email,$data,$type,$size,$name);
             $stmt ->execute();
             echo "<script>location.href='comment.php'</script>";
