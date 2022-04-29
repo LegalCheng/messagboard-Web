@@ -314,23 +314,20 @@ input{
 	</form>
     <?php
         require_once('config.php');
-		$sqltest="SELECT * FROM `members` WHERE `E-mail` = '$_POST[email]'"; // SQL select same e-mail
-		$check=mysqli_query($link,$sqltest);
-		$nums=mysqli_fetch_row($check);
+		$user=$_POST[email];
+		$stmt = $link->prepare("SELECT * FROM `members` WHERE `E-mail` = ?;");
+   	 	$stmt->bind_param('s',$user);
+    	$stmt->execute();
+    	$result = $stmt->get_result();
+    	$output = $result->fetch_assoc();
 		if($_POST[email] == null || $_POST[password] == null ){
 		}
 		else{
-			//decode MIME BASE64
-			$enpassword=base64_decode($nums[1]);
-			if( $nums[0] == $_POST[email] && $enpassword == $_POST[password]){ //confirm correct username and password
-				//access session
+			$enpassword=base64_decode($output['password']);
+			if( $output['E-mail'] == $_POST[email] && $enpassword == $_POST[password]){ 
         		$_SESSION['E-mail'] = $_POST[email];
-        		$_SESSION['password'] = $enpassword;
-        		$_SESSION['fname'] = $nums[2];
-        		$_SESSION['phone'] = $nums[3];
-        		$_SESSION['address'] = $nums[4];
-        		$_SESSION['birthday'] = $nums[5];
-        		echo "<script>location.href='comment.php'</script>"; //turn to account page
+        		$_SESSION['fname'] = $output['nickname'];
+        		echo "<script>location.href='comment.php'</script>";
 		}
 			else{
         		echo "<script>alert('Wrong username or password. Try again')</script>";
