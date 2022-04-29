@@ -313,13 +313,9 @@ input{
 		</section>
 	</form>
     <?php
-        define('DB_SERVER', 'db');
-        define('DB_USERNAME', 'user1000');
-        define('DB_PASSWORD', 'kiki90317');
-        define('DB_NAME', 'myDb');
-        $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+        require_once('config.php');
 		$sqltest="SELECT * FROM `members` WHERE `E-mail` = '$_POST[email]'"; // SQL select same e-mail
-		$check=mysqli_query($conn,$sqltest);
+		$check=mysqli_query($link,$sqltest);
 		$nums=mysqli_fetch_row($check);
 		if($_POST[email] == null || $_POST[password] == null ){
 		}
