@@ -129,10 +129,15 @@ body {
 <body>
   <header class="title">
     <?php
-     require_once('config.php');
-      $data = mysqli_query($link, "SELECT * FROM `title` WHERE `id`='1'");
-      $nums=mysqli_fetch_row($data);
-      echo utf8_decode($nums[1]);
+      require_once('config.php');
+      $stmt = $link->prepare("SELECT * FROM `title` WHERE `id` = ?;");
+      $id=1;
+      $stmt->bind_param('i',$id);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      $output = $result->fetch_assoc();
+      $title=utf8_decode($output['title']);
+      echo $title;
     ?>
   </header>
 
@@ -186,7 +191,7 @@ body {
               $nickname=htmlspecialchars($_SESSION['fname']);
               echo $nickname;?></b></label>
             <?php
-            require_once('config.php');
+              require_once('config.php');
               function getHeadShot($link) {
                 $username = $_SESSION['E-mail'];
                 $result = '';
@@ -198,7 +203,7 @@ body {
                 }
                 return $result;
               }
-            $haveHeadShot = getHeadShot($link);
+              $haveHeadShot = getHeadShot($link);
               if ($haveHeadShot) { 
                 echo '<img src=' . $haveHeadShot . '" width="300" height="300" class="picture1"/>'; 
               }?>			
@@ -281,18 +286,17 @@ body {
         $data="";
       }
       $size = $_FILES['file1']['size'];
-      $start=substr($_POST[comment],0,5);
-      if($start=="[img]"){
-        $abb=substr($_POST[comment],5,-6);
-        if(preg_match('/.*(\.png|\.jpg|\.jpeg|\.gif)$/', $abb)){
-          $a=bbcode($_POST[comment]);
-          date_default_timezone_set("Asia/Taipei");
-          $getpasstime = date('Y/m/d H:i:s');
-          $check = mysqli_query($link, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
-          $nums=mysqli_fetch_row($check);
-          $num_rows = $nums[0]+1;
-          $str=$_SESSION['fname'];
-          $email=$_SESSION['E-mail'];
+      $abb=substr($_POST[comment],5,-6);
+      $a=bbcode($_POST[comment]);
+      date_default_timezone_set("Asia/Taipei");
+      $getpasstime = date('Y/m/d H:i:s');
+      $stmt = $link->prepare("SELECT * FROM comment ORDER BY id DESC LIMIT 1");
+      $stmt->execute();
+      $result = $stmt->get_result();
+      $output = $result->fetch_assoc();
+      $num_rows = $output['id']+1;
+      $str=$_SESSION['fname'];
+      $email=$_SESSION['E-mail'];
           if($email == null){
             echo "<script type='text/javascript'>alert('請先登入才能留言');</script>";
             echo "<script>location.href='comment.php'</script>";
@@ -303,39 +307,13 @@ body {
             $stmt ->execute();
             echo "<script>location.href='comment.php'</script>";
           }
-        }
-        else{
-          echo "<script type='text/javascript'>alert('url不是圖片!!');</script>";
-          echo "<script>location.href='comment.php'</script>";
-        }
-      }
-      else{
-        $a=bbcode($_POST[comment]);
-          date_default_timezone_set("Asia/Taipei");
-          $getpasstime = date('Y/m/d H:i:s');
-          $check = mysqli_query($link, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
-          $nums=mysqli_fetch_row($check);
-          $num_rows = $nums[0]+1;
-          $str=$_SESSION['fname'];
-          $email=$_SESSION['E-mail'];
-          if($email == null){
-            echo "<script type='text/javascript'>alert('請先登入才能留言');</script>";
-            echo "<script>location.href='comment.php'</script>";
-          }
-          else{
-            $stmt=$link ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
-            $stmt ->bind_param('sssssssss',$num_rows,$str,$a,$getpasstime,$email,$data,$type,$size,$name);
-            $stmt ->execute();
-            echo "<script>location.href='comment.php'</script>";
-          }
-      }	
-  }
+    }	
+  
   else{
   }
   function bbcode($input){
     $input = strip_tags($input);
     $input = htmlentities($input);
-    
     $search = array(
                 '/\[b\](.*?)\[\/b\]/is',
                 '/\[i\](.*?)\[\/i\]/is',
@@ -354,3 +332,4 @@ body {
     return preg_replace($search,$replace,$input);
   } 
 ?>
+
