@@ -1,13 +1,15 @@
 <?php
     require_once('config.php');
     $id=$_GET['FileNo'];
-    $query="SELECT * FROM comment WHERE `id` = '$id' ";
-    $ret=mysqli_query($link,$query);
-    $data=mysqli_fetch_row($ret);
+    $stmt = $link->prepare("SELECT * FROM `comment` WHERE `id` = ?;");
+    $stmt->bind_param('i',$id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $output = $result->fetch_assoc();
     
-    $filename = $data[8];
-	$type = $data[6];
-	$file = $data[5];
+    $filename = $output['dataname'];
+	$type = $output['type'];
+	$file = $output['Data'];
     header('Content-Type: '.$type);
     header('Content-Disposition: attachment; filename="'.$filename.'"');
     header('Content-Transfer-Encoding: binary');
