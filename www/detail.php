@@ -1,9 +1,5 @@
 <?php 
-    define('DB_SERVER', 'db');
-    define('DB_USERNAME', 'user1000');
-    define('DB_PASSWORD', 'kiki90317');
-    define('DB_NAME', 'myDb');
-    $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+    require_once('config.php');
     $id=$_GET['id'];
     $data = mysqli_query($link, "SELECT * FROM comment WHERE `id` = '$id' ");
     $nums=mysqli_fetch_row($data);
