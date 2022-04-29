@@ -295,11 +295,7 @@ input{
 		</section>
 	</form>
 <?php
-		define('DB_SERVER', 'db');
-        define('DB_USERNAME', 'user1000');
-        define('DB_PASSWORD', 'kiki90317');
-        define('DB_NAME', 'myDb');
-		$conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+		require_once('config.php');
 		if(""==$_POST[Email]){
 		}
 		else{
@@ -309,27 +305,25 @@ input{
 			}
 			else{
 				$sqltest="SELECT * FROM `members` WHERE `E-mail` = '$_POST[Email]'"; // SQL select same e-mail
-				$check=mysqli_query($conn,$sqltest);
+				$check=mysqli_query($link,$sqltest);
 				$nums=mysqli_num_rows($check);
 				date_default_timezone_set("Asia/Taipei");
 				$getpasstime = date('Y/m/d H:i:s');
-				if($nums>0){ // have the same information.then error occur
+				if($nums>0){ 
 					echo "<script>alert('That username is taken.Try another')</script>"; //alert error
 				}else{
-					//encode MIME BASE64
 					$enpassword=base64_encode($_POST[password]);
-					// insert into database
 					$sql="insert into members values('$_POST[Email]','$enpassword','$_POST[fname]','$_POST[phone]','$_POST[address]','$_POST[birthday]','$getpasstime','','')";
-					mysqli_query($conn,$sql);
+					mysqli_query($link,$sql);
 					echo "<script>alert('Registration success.Can login!')</script>";
 					$username=$_POST[Email];
 					$url="https://image.damanwoo.com/files/styles/rs-big/public/flickr/4/3151/5820170825_59418deec8_o.jpg";
-					$type=getimagesize($url);//取得圖片資訊
+					$type=getimagesize($url);
     				$fileContent = base64_encode(file_get_contents($url));
 					$sql1 = "UPDATE `members` SET `picture` = '$fileContent', `type`='$type' WHERE `E-mail` = '$username'";
-    				mysqli_query($conn,$sql1);
-					session_destroy(); //session clear
-					echo "<script>location.href='index.php'</script>"; //turn to login page
+    				mysqli_query($link,$sql1);
+					session_destroy();
+					echo "<script>location.href='index.php'</script>"; 
 				}
 			}
 		}
