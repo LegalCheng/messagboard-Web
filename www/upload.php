@@ -44,12 +44,13 @@ if($_POST['url']!=null){
         echo "<script>alert('不是圖片不給你改大頭貼')</script>";
         echo "<script>location.href='comment.php'</script>";
     }
-    $sql = "UPDATE `members` SET `picture` = '$fileContent', `type`='$type' WHERE `E-mail` = '$username'";
-    mysqli_query($link,$sql);
+    $stmt = $link->prepare("UPDATE `members` SET `picture` = ?, `type`= ? WHERE `E-mail` = ?;");
+    $stmt->bind_param('sss',$fileContent,$type,$username);
+    $stmt->execute();
     header("Location: comment.php");
 }
-$sql = "UPDATE `members` SET `picture` = '$fileContent', `type`='$type' WHERE `E-mail` = '$username'";
-mysqli_query($link,$sql);
+$stmt = $link->prepare("UPDATE `members` SET `picture` = ?, `type`= ? WHERE `E-mail` = ?;");
+$stmt->bind_param('sss',$fileContent,$type,$username);
+$stmt->execute();
 echo "<script>location.href='comment.php'</script>"
 ?>
-
