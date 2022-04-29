@@ -13,8 +13,9 @@
     require_once('config.php');
     if($_POST[name]!=NULL){
         $fileContent=utf8_encode($_POST[name]);
-        $sql = "UPDATE `title` SET `title` = '$fileContent'";
-        mysqli_query($link,$sql);
+        $stmt = $link->prepare("UPDATE `title` SET `title` = ?;");
+        $stmt->bind_param('s',$fileContent);
+        $stmt->execute();
         echo "<script>location.href='comment.php'</script>";
     }
 ?>
