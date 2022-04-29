@@ -229,7 +229,7 @@ input{
 				<section class="form1">					
 					<div>
 						<label class="regular">Set Password</label>
-						<input required type="password" required pattern="[A-Za-z0-9!@#$%^&*()]{8,12}" id="password" name="password" placeholder="Set Password" class="regular">
+						<input required type="password" required pattern="[A-Za-z0-9!@#$%^&*()]{0,10}" id="password" name="password" placeholder="Set Password" class="regular">
 					</div>					
 				</section>
 
@@ -237,14 +237,14 @@ input{
 				<section class="form1">					
 					<div>
 						<label class="regular">Retype Password</label>
-						<input required type="password" required pattern="[A-Za-z0-9!@#$%^&*()]{8,12}" id="repassword" name="repassword" placeholder="Retype Password" class="regular">
+						<input required type="password" required pattern="[A-Za-z0-9!@#$%^&*()]{0,10}" id="repassword" name="repassword" placeholder="Retype Password" class="regular">
 					</div>					
 				</section>
 
 				<section class="form1">
 					<div>
 						<label class="regular">NickName</label>
-						<input required type="text" id="fname" name="fname" placeholder="NickName" class="regular">
+						<input required type="text" required pattern="[A-Za-z0-9]{1,50}" id="fname" name="fname" placeholder="NickName" class="regular">
 					</div>
 					
 				</section>
@@ -253,7 +253,7 @@ input{
 				<section class="form1">					
 					<div>
 						<label class="regular">Phone</label>
-						<input required type="text" id="phone" name="phone" placeholder="Phone" class="regular">
+						<input type="text" id="phone" name="phone" placeholder="Phone" class="regular">
 					</div>					
 				</section>
 
@@ -261,7 +261,7 @@ input{
 				<section class="form1">					
 					<div>
 						<label class="regular">Address</label>
-						<input required type="text" id="address" name="address" placeholder="Address" class="regular">
+						<input type="text" id="address" name="address" placeholder="Address" class="regular">
 					</div>					
 				</section>
 
@@ -269,7 +269,7 @@ input{
 				<section class="form1">					
 					<div>
 						<label class="regular">Birthday</label>
-						<input required type="date" id="birthday" name="birthday" placeholder="Birthday" class="regular">
+						<input type="date" id="birthday" name="birthday" placeholder="Birthday" class="regular">
 					</div>					
 				</section>				
 
@@ -285,7 +285,7 @@ input{
 				<section id="info">
 					<p class="regular">Already a member ?</p>
 					<div></div>
-					<p class="regular">Click <a href="loginWeb.php">HERE</a> for member log in</p>
+					<p class="regular">Click <a href="index.php">HERE</a> for member log in</p>
 				</section>
 			</article>
 		<!-- aside pic -->
@@ -329,7 +329,7 @@ input{
 					$sql1 = "UPDATE `members` SET `picture` = '$fileContent', `type`='$type' WHERE `E-mail` = '$username'";
     				mysqli_query($conn,$sql1);
 					session_destroy(); //session clear
-					echo "<script>location.href='loginWeb.php'</script>"; //turn to login page
+					echo "<script>location.href='index.php'</script>"; //turn to login page
 				}
 			}
 		}
