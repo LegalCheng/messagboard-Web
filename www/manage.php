@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $admin="admin@com";
+    $admin="admin@com.com";
     if($_SESSION['E-mail']!=$admin){
         echo "<script>location.href='comment.php'</script>";
     }
