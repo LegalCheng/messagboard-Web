@@ -288,7 +288,6 @@ input{
 					<p class="regular">Click <a href="index.php">HERE</a> for member log in</p>
 				</section>
 			</article>
-		<!-- aside pic -->
 			<aside id="pic">
 				<img src="Web.png"></img>
 			</aside>
@@ -299,29 +298,35 @@ input{
 		if(""==$_POST[Email]){
 		}
 		else{
-			if($_POST[password]!=$_POST[repassword]) //password and retype password didn't match.then error occur
+			if($_POST[password]!=$_POST[repassword]) 
 			{
-				echo "<script>alert('Those passwords didn’t match. Try again.')</script>"; //alert error
+				echo "<script>alert('Those passwords didn’t match. Try again.')</script>"; 
 			}
 			else{
-				$sqltest="SELECT * FROM `members` WHERE `E-mail` = '$_POST[Email]'"; // SQL select same e-mail
-				$check=mysqli_query($link,$sqltest);
-				$nums=mysqli_num_rows($check);
+				$user=$_POST[Email];
+				$stmt = $link->prepare("SELECT * FROM `members` WHERE `E-mail` = ?;");
+    			$stmt->bind_param('s',$user);
+    			$stmt->execute();
+    			$result = $stmt->get_result();
+    			$output = $result->fetch_assoc();
 				date_default_timezone_set("Asia/Taipei");
 				$getpasstime = date('Y/m/d H:i:s');
-				if($nums>0){ 
-					echo "<script>alert('That username is taken.Try another')</script>"; //alert error
+				if($output>0){ 
+					echo "<script>alert('That username is taken.Try another')</script>"; 
 				}else{
 					$enpassword=base64_encode($_POST[password]);
-					$sql="insert into members values('$_POST[Email]','$enpassword','$_POST[fname]','$_POST[phone]','$_POST[address]','$_POST[birthday]','$getpasstime','','')";
-					mysqli_query($link,$sql);
-					echo "<script>alert('Registration success.Can login!')</script>";
 					$username=$_POST[Email];
+					$nickname=$_POST[fname];
+					$phone=$_POST[phone];
+					$address=$_POST[address];
+					$bt=$_POST[birthday];
 					$url="https://image.damanwoo.com/files/styles/rs-big/public/flickr/4/3151/5820170825_59418deec8_o.jpg";
 					$type=getimagesize($url);
     				$fileContent = base64_encode(file_get_contents($url));
-					$sql1 = "UPDATE `members` SET `picture` = '$fileContent', `type`='$type' WHERE `E-mail` = '$username'";
-    				mysqli_query($link,$sql1);
+					$stmt=$link ->prepare("insert into members values(?,?,?,?,?,?,?,?,?)");
+            		$stmt ->bind_param('sssssssss',$username,$enpassword,$nickname,$phone,$address,$bt,$getpasstime,$fileContent,$type);
+            		$stmt ->execute();
+					echo "<script>alert('Registration success.Can login!')</script>";
 					session_destroy();
 					echo "<script>location.href='index.php'</script>"; 
 				}
