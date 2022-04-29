@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php session_start(); 
+$_SESSION['token'] = bin2hex(random_bytes(32));
+setcookie("csrftoken", $_SESSION['token']);
+?>
 <style>
 .form1 div{
   width:80%;
@@ -133,7 +136,7 @@ body {
       $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
       $data = mysqli_query($conn, "SELECT * FROM `title` WHERE `id`='1'");
       $nums=mysqli_fetch_row($data);
-      echo utf8_decode($nums[0]);
+      echo utf8_decode($nums[1]);
     ?>
   </header>
 
@@ -144,7 +147,7 @@ body {
       </div>
       <div class="board__btn-block">
               <?php
-                $admin="admin@com";
+                $admin="admin@com.com";
                 $class="board__btn";
                 $href="manage.php";
                 if ($_SESSION['E-mail']==$admin){
@@ -157,7 +160,7 @@ body {
 			                echo "destroy.php";
 		              }
                   else{
-                      echo "loginWeb.php";
+                      echo "index.php";
                   }?>><?php 
                   if($_SESSION['E-mail']!=null){ 
 			                echo "Log out";
@@ -184,7 +187,8 @@ body {
             <label >Comment</label><br><br>
             <label class="board__tittle"><b><?php 
               echo "Hello!!!\t";
-              echo $_SESSION['fname'];?></b></label>
+              $nickname=htmlspecialchars($_SESSION['fname']);
+              echo $nickname;?></b></label>
             <?php
             define('DB_SERVER', 'db');
             define('DB_USERNAME', 'user1000');
@@ -232,19 +236,26 @@ body {
       $rs=mysqli_fetch_row($data);
  ?>
   <tr>
-    <td><?php echo $rs[1]?></td>
+    <td><?php 
+      $name=htmlspecialchars($rs[1],ENT_NOQUOTES);
+      echo $name;
+    ?></td>
     <td><?php echo $rs[2]?></td>
     <td><?php echo $rs[3]?></td>
     <td>
-      <?php
-        $email=$_SESSION['E-mail'];
-        $delete="dbb.php";
-        $url="https://pic.onlinewebfonts.com/svg/img_216917.png";
-        if($rs[4]==$email){
-          $id=$rs[0];
-          echo "<a href=$delete?id=$id><img src=$url style=width:30px;height:30px></a>";
-        }
-      ?>
+      <form action="dbb.php?id=<?php echo $rs[0]; ?>" method="POST">
+        <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>">
+        <?php
+            $url="https://pic.onlinewebfonts.com/svg/img_216917.png";
+            $alt="Submit";
+            $type="image";
+            $size=30;
+           if($rs[4]==$_SESSION['E-mail']){
+              echo "<input type=$type src=$url alt=$alt width=$size heigth=$size>";
+           }
+        ?>
+        
+      </form>
     </td>
     <td>
       <?php
@@ -286,23 +297,53 @@ body {
         $data="";
       }
       $size = $_FILES['file1']['size'];
-      $a=bbcode($_POST[comment]);
-      date_default_timezone_set("Asia/Taipei");
-      $getpasstime = date('Y/m/d H:i:s');
-      $check = mysqli_query($conn, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
-      $nums=mysqli_fetch_row($check);
-      $num_rows = $nums[0]+1;
-      $str=$_SESSION['fname'];
-      $email=$_SESSION['E-mail'];
-      if($email == null){
-        echo "<script type='text/javascript'>alert('請先登入才能留言');</script>";
-        echo "<script>location.href='comment.php'</script>";
+      $start=substr($_POST[comment],0,5);
+      if($start=="[img]"){
+        $abb=substr($_POST[comment],5,-6);
+        if(preg_match('/.*(\.png|\.jpg|\.jpeg|\.gif)$/', $abb)){
+          $a=bbcode($_POST[comment]);
+          date_default_timezone_set("Asia/Taipei");
+          $getpasstime = date('Y/m/d H:i:s');
+          $check = mysqli_query($conn, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
+          $nums=mysqli_fetch_row($check);
+          $num_rows = $nums[0]+1;
+          $str=$_SESSION['fname'];
+          $email=$_SESSION['E-mail'];
+          if($email == null){
+            echo "<script type='text/javascript'>alert('請先登入才能留言');</script>";
+            echo "<script>location.href='comment.php'</script>";
+          }
+          else{
+            $stmt=$conn ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
+            $stmt ->bind_param('sssssssss',$num_rows,$str,$a,$getpasstime,$email,$data,$type,$size,$name);
+            $stmt ->execute();
+            echo "<script>location.href='comment.php'</script>";
+          }
+        }
+        else{
+          echo "<script type='text/javascript'>alert('url不是圖片!!');</script>";
+          echo "<script>location.href='comment.php'</script>";
+        }
       }
       else{
-        $stmt=$conn ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
-        $stmt ->bind_param('sssssssss',$num_rows,$str,$a,$getpasstime,$email,$data,$type,$size,$name);
-        $stmt ->execute();
-        echo "<script>location.href='comment.php'</script>";
+        $a=bbcode($_POST[comment]);
+          date_default_timezone_set("Asia/Taipei");
+          $getpasstime = date('Y/m/d H:i:s');
+          $check = mysqli_query($conn, "SELECT * FROM comment ORDER BY id DESC LIMIT 1");
+          $nums=mysqli_fetch_row($check);
+          $num_rows = $nums[0]+1;
+          $str=$_SESSION['fname'];
+          $email=$_SESSION['E-mail'];
+          if($email == null){
+            echo "<script type='text/javascript'>alert('請先登入才能留言');</script>";
+            echo "<script>location.href='comment.php'</script>";
+          }
+          else{
+            $stmt=$conn ->prepare("insert into comment values(?,?,?,?,?,?,?,?,?)");
+            $stmt ->bind_param('sssssssss',$num_rows,$str,$a,$getpasstime,$email,$data,$type,$size,$name);
+            $stmt ->execute();
+            echo "<script>location.href='comment.php'</script>";
+          }
       }	
   }
   else{
@@ -326,9 +367,6 @@ body {
                 '<img src="$1">',
                 '<span style="color:$1;">$2</span>',
     );
-    
     return preg_replace($search,$replace,$input);
   } 
-  
 ?>
-
